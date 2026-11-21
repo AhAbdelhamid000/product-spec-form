@@ -3473,7 +3473,22 @@ body:not(.locked) #login{display:none}
   table.spec-tbl{min-width:0!important}
   select{appearance:none;-webkit-appearance:none}
   textarea{resize:none}
+  .dz-actions,.dz-plus,.dz-hint,.dz-label{display:none!important}
+  .dz[data-state=empty] .dz-none{display:inline!important}
+  .dz{min-height:0!important;break-inside:avoid}
+  #dz-img{max-height:9cm!important}
 }
+.dz{border:0.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--color-background-secondary);padding:12px;text-align:center}
+.dz[data-state=empty]{cursor:pointer}
+.dz.over,.dz[data-state=empty]:hover{border-color:var(--color-border-primary)}
+.dz:focus-visible{outline:2px solid var(--color-border-primary);outline-offset:2px}
+.dz>div{display:none;flex-direction:column;align-items:center;gap:8px;width:100%}
+.dz[data-state=empty] .dz-empty,.dz[data-state=busy] .dz-busy,.dz[data-state=file] .dz-file{display:flex}
+.dz-plus{width:32px;height:32px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center}
+.dz-none{display:none}
+#dz-img{max-width:100%;max-height:260px;object-fit:contain;border-radius:4px;background:#fff}
+.dz-meta{font-size:13px;color:var(--color-text-secondary);word-break:break-all}
+.dz-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 </style>
 
 <form id="login" class="form-header" onsubmit="signIn(event)">
@@ -3630,12 +3645,29 @@ body:not(.locked) #login{display:none}
         <input placeholder="e.g. Rev 02">
       </div>
     </div>
-    <div style="border:0.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:var(--color-background-secondary)">
-      <div style="width:32px;height:32px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+    <div id="dz" class="dz" data-state="empty" role="button" tabindex="0" aria-label="Attach technical drawing"
+         onclick="if(drawing===null)$('dz-input').click()"
+         onkeydown="if((event.key==='Enter'||event.key===' ')&&drawing===null){event.preventDefault();$('dz-input').click();}"
+         ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="dropDrawing(event)">
+      <input type="file" id="dz-input" hidden accept=".png,.jpg,.jpeg,.pdf,.dwg,image/png,image/jpeg,application/pdf" onchange="pickDrawing(this.files[0]);this.value=''">
+      <div class="dz-empty">
+        <div class="dz-plus">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+        </div>
+        <span class="dz-label" style="font-size:13px;color:var(--color-text-secondary)">Attach technical drawing / أرفق الرسمة الفنية</span>
+        <span class="dz-hint" style="font-size:11px;color:var(--color-text-tertiary)">PNG, JPG, PDF, DWG · up to 10 MB · tap or drop a file</span>
+        <span class="dz-none" style="font-size:13px">No drawing attached / لا توجد رسمة</span>
       </div>
-      <span style="font-size:13px;color:var(--color-text-secondary)">Attach technical drawing / أرفق الرسمة الفنية</span>
-      <span style="font-size:11px;color:var(--color-text-tertiary)">PNG, PDF, DWG</span>
+      <div class="dz-busy" id="dz-busy" style="font-size:13px;color:var(--color-text-secondary)">Uploading…</div>
+      <div class="dz-file">
+        <img id="dz-img" alt="Technical drawing" hidden>
+        <div class="dz-meta"><span id="dz-name"></span> · <span id="dz-size"></span></div>
+        <div class="dz-actions">
+          <button type="button" class="btn-outline" onclick="event.stopPropagation();downloadDrawing()">Download</button>
+          <button type="button" class="btn-outline" onclick="event.stopPropagation();$('dz-input').click()">Replace</button>
+          <button type="button" class="btn-outline" onclick="event.stopPropagation();removeDrawing()">Remove</button>
+        </div>
+      </div>
     </div>
     <div class="field-group" style="margin-top:12px">
       <span class="field-label">Design notes / ملاحظات التصميم</span>
@@ -3961,13 +3993,13 @@ async function api(action,payload){
   if(out.error)throw new Error(out.error);
   return out;
 }
-const fields=()=>[...document.querySelectorAll('.form-wrap input, .form-wrap select, .form-wrap textarea')];
+const fields=()=>[...document.querySelectorAll('.form-wrap input:not([type=file]), .form-wrap select, .form-wrap textarea')];
 const fmt=ts=>new Date(ts).toLocaleString([], {dateStyle:'medium',timeStyle:'short'});
 function msg(text,color){const m=$('save-msg');m.textContent=text;m.style.color=color||'var(--color-text-secondary)';}
 
 // shortcut: values are stored by field order, so changing the form layout later breaks old records; store by field name if the layout will change.
 function snapshot(){
-  return {rows:Object.fromEntries(TBODIES.map(id=>[id,$(id).rows.length])),vals:fields().map(f=>f.value)};
+  return {rows:Object.fromEntries(TBODIES.map(id=>[id,$(id).rows.length])),vals:fields().map(f=>f.value),drawing};
 }
 function applySnap(s){
   for(const id of TBODIES){
@@ -3977,9 +4009,72 @@ function applySnap(s){
   }
   const fs=fields();
   s.vals.forEach((v,i)=>{if(fs[i])fs[i].value=v;});
+  setDrawing(s.drawing);
   document.querySelectorAll('#color-tbody td:nth-child(2) input').forEach(updateSwatch);
   updateProgress();
 }
+// ---------- Technical drawing (file lives in the service's Drive folder; the spec keeps {id,name,type,size}) ----------
+let drawing=null;
+const previews={};   // drawing id -> data URL, so images load from Drive once per page
+const MAX_DRAWING=10*1024*1024;
+const isImage=t=>/^image\/(png|jpe?g)$/.test(t||'');
+const fmtSize=n=>n>=1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB';
+
+function setDrawing(d){
+  drawing=d||null;
+  const dz=$('dz'),img=$('dz-img');
+  dz.dataset.state=drawing?'file':'empty';
+  img.hidden=true;img.removeAttribute('src');
+  if(!drawing)return;
+  $('dz-name').textContent=drawing.name;
+  $('dz-size').textContent=fmtSize(drawing.size);
+  if(isImage(drawing.type))loadPreview(drawing);
+}
+async function loadPreview(d){
+  try{
+    if(!previews[d.id]){const f=await api('file',{id:d.id});previews[d.id]='data:'+f.type+';base64,'+f.base64;}
+    if(drawing&&drawing.id===d.id){$('dz-img').src=previews[d.id];$('dz-img').hidden=false;}
+  }catch(err){msg('Could not load the drawing preview: '+err.message,'var(--color-text-danger)');}
+}
+async function pickDrawing(file){
+  if(!file)return;
+  if(!/\.(png|jpe?g|pdf|dwg)$/i.test(file.name))return alert('Please attach a PNG, JPG, PDF or DWG file.');
+  if(file.size>MAX_DRAWING)return alert('This drawing is larger than 10 MB. Please reduce it or export it as PDF.');
+  const prev=drawing;
+  $('dz').dataset.state='busy';$('dz-busy').textContent='Uploading '+file.name+'…';
+  try{
+    const dataUrl=await new Promise((ok,bad)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>bad(r.error);r.readAsDataURL(file);});
+    const type=file.type||(/\.dwg$/i.test(file.name)?'image/vnd.dwg':'application/octet-stream');
+    const res=await api('upload',{name:file.name,type,base64:dataUrl.slice(dataUrl.indexOf(',')+1)});
+    if(isImage(type))previews[res.file.id]=dataUrl;
+    setDrawing(res.file);saveDraft();
+    msg('Drawing attached — press Save spec to keep it with this spec.','var(--color-text-warning)');
+  }catch(err){
+    setDrawing(prev);
+    msg('Drawing not attached: '+err.message,'var(--color-text-danger)');
+  }
+}
+function dropDrawing(e){
+  e.preventDefault();$('dz').classList.remove('over');
+  if(e.dataTransfer.files.length)pickDrawing(e.dataTransfer.files[0]);
+}
+function removeDrawing(){
+  if(!confirm('Remove the drawing from this spec?'))return;
+  setDrawing(null);saveDraft();
+  msg('Drawing removed — press Save spec to keep this change.','var(--color-text-warning)');
+}
+async function downloadDrawing(){
+  try{
+    msg('Preparing download…');
+    const f=await api('file',{id:drawing.id});
+    const bytes=Uint8Array.from(atob(f.base64),c=>c.charCodeAt(0));
+    const url=URL.createObjectURL(new Blob([bytes],{type:f.type}));
+    const a=document.createElement('a');a.href=url;a.download=f.name;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+    msg('');
+  }catch(err){msg('Could not download the drawing: '+err.message,'var(--color-text-danger)');}
+}
+
 const TEMPLATE=snapshot();
 
 function saveDraft(){
