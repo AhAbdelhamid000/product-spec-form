@@ -3638,11 +3638,11 @@ body:not(.locked) #login{display:none}
     <div class="two-col" style="margin-bottom:12px">
       <div class="field-group">
         <span class="field-label">Drawing number / رقم الرسمة</span>
-        <input placeholder="e.g. DRW-LP2016-001">
+        <input id="drw-no" placeholder="e.g. DRW-LP2016-001">
       </div>
       <div class="field-group">
         <span class="field-label">Drawing revision / إصدار الرسمة</span>
-        <input placeholder="e.g. Rev 02">
+        <input id="drw-rev" placeholder="e.g. Rev 02">
       </div>
     </div>
     <div id="dz" class="dz" data-state="empty" role="button" tabindex="0" aria-label="Attach technical drawing"
@@ -4134,7 +4134,9 @@ async function saveForm(){
   if(!code){alert('Enter a Document code first — each spec is saved under its document code.');$('doc-code').focus();return;}
   const btn=$('save-btn');btn.disabled=true;msg('Saving…');
   try{
+    // Drawing number and revision name the drawing file in Drive ("PS-001 - Cap - DRW-001 Rev 02.png").
     const row={doc_code:code,prod_code:$('prod-code').value.trim(),prod_name:$('prod-name').value.trim(),
+      drawing_no:$('drw-no').value.trim(),drawing_rev:$('drw-rev').value.trim(),
       data:snapshot(),updated_by:staff.name,base:current&&current.doc_code===code?current.updated_at:null};
     let data=await api('save',row);
     // The sheet refuses to overwrite a spec that changed since this device opened it, unless the person confirms.
@@ -4144,6 +4146,7 @@ async function saveForm(){
       data=await api('save',Object.assign(row,{force:true}));
     }
     current={doc_code:data.doc_code,updated_at:data.updated_at};dropDraft();
+    if(data.drawing&&drawing&&data.drawing.id===drawing.id){drawing.name=data.drawing.name;$('dz-name').textContent=drawing.name;}
     msg('Saved at '+fmt(data.updated_at),'var(--color-text-success)');
     loadList(code);
   }catch(err){
