@@ -3461,23 +3461,76 @@ body:not(.locked) #login{display:none}
   .form-footer button{flex:1}
 }
 @media (min-width:641px) and (max-width:900px){.doc-meta-4{grid-template-columns:1fr 1fr}}
+/* ---------- Printed / PDF document: built from the form by buildPrintDoc(), shown only when printing ---------- */
+#print-doc{display:none}
 @media print{
   :root{color-scheme:light}
-  @page{size:A4;margin:12mm}
-  body{padding:0!important;background:#fff!important}
-  .toolbar,#login,.form-footer,#save-msg,.add-row-btn,.progress-wrap,.chevron{display:none!important}
-  .section-collapsed .section-body{display:block!important}
-  tr,.sig-block,.field-group{break-inside:avoid}
-  .section-hdr{break-after:avoid}
-  .table-wrap{overflow:visible}
-  table.spec-tbl{min-width:0!important}
-  select{appearance:none;-webkit-appearance:none}
-  textarea{resize:none}
-  .dz-actions,.dz-plus,.dz-hint,.dz-label{display:none!important}
-  .dz[data-state=empty] .dz-none{display:inline!important}
-  .dz{min-height:0!important;break-inside:avoid}
-  #dz-img{max-height:9cm!important}
+  @page{
+    size:A4;margin:12mm 12mm 15mm;
+    @bottom-left{content:"Leader Plast · Product Specification Sheet";font:7.5pt "Segoe UI",Arial,sans-serif;color:#777}
+    @bottom-right{content:"Page " counter(page) " of " counter(pages);font:7.5pt "Segoe UI",Arial,sans-serif;color:#777}
+  }
+  html,body{padding:0!important;margin:0!important;background:#fff!important}
+  body>svg,#login,.toolbar,.form-wrap{display:none!important}
+  #print-doc{display:block}
 }
+#print-doc{font:9pt/1.4 "Segoe UI",Tahoma,Arial,sans-serif;color:#1a1a1a;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#print-doc *{box-sizing:border-box}
+#print-doc table{width:100%;border-collapse:collapse;table-layout:fixed}
+#print-doc .ar{font-family:Tahoma,"Segoe UI",Arial,sans-serif}
+/* Arabic and English values line up on the same left edge; numbers stay centred. */
+#print-doc td{text-align:left}
+#print-doc .pd-tbl td.c-num,#print-doc .pd-tbl td.c-center,#print-doc .pd-tbl td.c-idx{text-align:center}
+#print-doc th .ar,#print-doc td.k .ar{text-align:inherit}
+/* header block */
+.pd-head td{border:0.75pt solid #555;padding:2.5mm 3mm;vertical-align:middle}
+.pd-logo{width:34mm;text-align:center}
+.pd-logo img{height:24mm;width:auto;display:block;margin:0 auto}
+.pd-title{text-align:center}
+.pd-title .t-en{font-size:15pt;font-weight:700;letter-spacing:.2pt}
+.pd-title .t-ar{font-size:12pt;margin-top:1mm}
+.pd-title .t-prod{font-size:10pt;margin-top:2mm;color:#c8403e;font-weight:600}
+.pd-meta{width:62mm;padding:0!important}
+.pd-meta table td{border:none;border-bottom:0.5pt solid #ccc;padding:1.3mm 2.5mm;font-size:8.5pt}
+.pd-meta table tr:last-child td{border-bottom:none}
+.pd-meta table td:first-child{color:#666;width:44%}
+.pd-meta table td:last-child{font-weight:600}
+.pd-printed{font-size:7.5pt;color:#777;text-align:right;margin:1.5mm 0 0}
+/* sections */
+.pd-sec{margin-top:5mm}
+.pd-sec h2{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 2mm;padding:1.6mm 3mm;font-size:10.5pt;font-weight:700;background:#f2f2f2;border-left:3pt solid #e8504e;break-after:avoid}
+.pd-sec h2 .num{color:#e8504e;margin-right:2mm}
+.pd-sec h2 .ar{font-size:9.5pt;font-weight:600;color:#555}
+/* data tables */
+.pd-tbl th{background:#4d4d4d;color:#fff;font-weight:600;font-size:8pt;padding:1.6mm 2mm;text-align:left;border:0.5pt solid #4d4d4d;vertical-align:bottom}
+.pd-tbl th .ar{display:block;font-weight:400;font-size:7.5pt;opacity:.85}
+.pd-tbl td{border:0.5pt solid #c4c4c4;padding:1.5mm 2mm;vertical-align:middle;word-wrap:break-word}
+.pd-tbl tbody tr:nth-child(even) td{background:#f8f8f8}
+.pd-tbl tr{break-inside:avoid}
+.pd-tbl .c-idx{width:8mm;text-align:center;color:#777}
+.pd-tbl .c-num,.pd-tbl th.c-num{text-align:center;font-variant-numeric:tabular-nums}
+.pd-tbl .c-center,.pd-tbl th.c-center{text-align:center}
+.pd-tbl .empty td{text-align:center;color:#999;font-style:italic}
+.pd-swatch{display:inline-block;width:4mm;height:4mm;border:0.5pt solid #888;border-radius:.6mm;vertical-align:-0.7mm;margin-right:1.5mm}
+/* label / value grid */
+.pd-kv td{border:0.5pt solid #c4c4c4;padding:1.5mm 2.5mm;vertical-align:top}
+.pd-kv td.k{background:#f2f2f2;color:#444;width:24%;font-size:8pt}
+.pd-kv td.k .ar{display:block;font-size:7.5pt;color:#777}
+.pd-kv td.v{width:26%}
+.pd-kv td.v.wide{width:auto}
+.pd-blank{color:#aaa}
+/* drawing */
+.pd-drawing{border:0.5pt solid #c4c4c4;margin-top:2mm;padding:3mm;text-align:center;break-inside:avoid}
+.pd-drawing img{max-width:100%;max-height:110mm;object-fit:contain}
+.pd-drawing .cap{font-size:8pt;color:#666;margin-top:1.5mm}
+/* approvals */
+.pd-sign{break-inside:avoid}
+.pd-sign td{border:0.5pt solid #c4c4c4;padding:2.5mm 3mm;vertical-align:top;width:50%}
+.pd-sign .role{font-weight:700;font-size:9pt}
+.pd-sign .role .ar{font-weight:400;color:#666;margin-left:1.5mm}
+.pd-sign .line{display:flex;gap:2mm;margin-top:4mm;font-size:8.5pt}
+.pd-sign .line span:first-child{color:#666;width:16mm;flex-shrink:0}
+.pd-sign .line span:last-child{flex:1;border-bottom:0.5pt solid #888;min-height:5mm}
 .dz{border:0.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--color-background-secondary);padding:12px;text-align:center}
 .dz[data-state=empty]{cursor:pointer}
 .dz.over,.dz[data-state=empty]:hover{border-color:var(--color-border-primary)}
@@ -3492,7 +3545,6 @@ body:not(.locked) #login{display:none}
 /* The logo has a light background of its own, so it sits on a white tile in both themes. */
 .brand-logo{height:100px;width:auto;background:#fff;border-radius:var(--border-radius-md);padding:4px;flex-shrink:0}
 @media (max-width:640px){.brand-logo{height:80px}}
-@media print{.brand-logo{height:28mm;padding:0}}
 </style>
 
 <form id="login" class="form-header" onsubmit="signIn(event)">
@@ -3925,6 +3977,8 @@ body:not(.locked) #login{display:none}
 
 </div>
 
+<div id="print-doc" aria-hidden="true"></div>
+
 <script>
 const COLOR_MAP={white:"#ffffff",black:"#222222",red:"#e24b4a",blue:"#378add",green:"#639922",yellow:"#efb827",orange:"#ef9f27",pink:"#d4537e",gray:"#888780",grey:"#888780",purple:"#7f77dd",brown:"#8b5e3c",beige:"#f5f0e8",ivory:"#fffff0",clear:"#f8f8f8",transparent:"#f8f8f8",natural:"#f5f0e8"};
 
@@ -4162,9 +4216,113 @@ async function saveForm(){
   }finally{btn.disabled=false;}
 }
 
+// ---------- PDF / print document (a clean A4 layout built from the form; the form itself is hidden when printing) ----------
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const val=el=>el?el.value.trim():'';
+const blank=v=>v?esc(v):'<span class="pd-blank">—</span>';
+const fmtDay=v=>{if(!v)return '';const d=new Date(v+'T00:00:00');return isNaN(d)?v:d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});};
+const splitLabel=t=>{const i=t.indexOf(' / ');return i<0?[t.trim(),'']:[t.slice(0,i).trim(),t.slice(i+3).trim()];};
+const bi=(en,ar)=>esc(en)+(ar?'<span class="ar" dir="rtl">'+esc(ar)+'</span>':'');
+// "Weight / الوزن" -> English with the Arabic after it in grey
+const biInline=v=>{const [e,a]=splitLabel(v);return esc(e)+(a?' <span class="ar" dir="rtl" style="color:#777">'+esc(a)+'</span>':'');};
+
+// Cell values of a form table, skipping the row-number column; swatch cells give their colour.
+function tableRows(id){
+  return [...$(id).rows].map(tr=>[...tr.cells].slice(1).map(td=>{
+    const f=td.querySelector('input,select');if(f)return f.value.trim();
+    const sw=td.querySelector('div');return sw?sw.style.background:'';
+  }));
+}
+function pdTable(cols,rows){
+  const head='<tr><th class="c-idx">#</th>'+cols.map(c=>'<th class="'+(c.cls||'')+'"'+(c.w?' style="width:'+c.w+'"':'')+'>'+bi(c.en,c.ar)+'</th>').join('')+'</tr>';
+  const body=rows.length
+    ?rows.map((r,n)=>'<tr><td class="c-idx">'+(n+1)+'</td>'+cols.map(c=>'<td class="'+(c.cls||'')+'" dir="auto">'+(c.fmt?c.fmt(r[c.i],r):esc(r[c.i]))+'</td>').join('')+'</tr>').join('')
+    :'<tr class="empty"><td colspan="'+(cols.length+1)+'">No entries</td></tr>';
+  return '<table class="pd-tbl"><thead>'+head+'</thead><tbody>'+body+'</tbody></table>';
+}
+function pdKV(pairs,wide){
+  let h='';
+  for(let i=0;i<pairs.length;i+=2){
+    const cell=p=>p?'<td class="k">'+bi(p[0],p[1])+'</td><td class="v" dir="auto">'+blank(p[2])+'</td>':'<td class="k"></td><td class="v"></td>';
+    h+='<tr>'+cell(pairs[i])+cell(pairs[i+1])+'</tr>';
+  }
+  if(wide)h+='<tr><td class="k">'+bi(wide[0],wide[1])+'</td><td class="v wide" colspan="3" dir="auto" style="white-space:pre-wrap">'+blank(wide[2])+'</td></tr>';
+  return '<table class="pd-kv">'+h+'</table>';
+}
+const pdSection=(n,en,ar,inner)=>'<section class="pd-sec"><h2><span><span class="num">'+n+'.</span>'+esc(en)+'</span><span class="ar" dir="rtl">'+esc(ar)+'</span></h2>'+inner+'</section>';
+
+function buildPrintDoc(){
+  const prodName=val($('prod-name'));
+  const meta=[['Document code',val($('doc-code'))],['Document name',val($('doc-name'))],['Issue date',fmtDay(val($('issue-date')))],
+    ['Revision date',fmtDay(val($('rev-date')))],['Product code',val($('prod-code'))]];
+  const printed='Printed '+fmt(Date.now())+(staff&&staff.name?' by '+staff.name:'')
+    +(current&&current.updated_at?' · Last saved '+fmt(current.updated_at):' · Not saved');
+  const header='<table class="pd-head"><tr>'
+    +'<td class="pd-logo"><img src="logo.png" alt="Leader Plast"></td>'
+    +'<td class="pd-title"><div class="t-en">Product Specification Sheet</div><div class="t-ar ar" dir="rtl">مواصفة المنتج</div>'+(prodName?'<div class="t-prod" dir="auto">'+esc(prodName)+'</div>':'')+'</td>'
+    +'<td class="pd-meta"><table>'+meta.map(m=>'<tr><td>'+esc(m[0])+'</td><td dir="auto">'+blank(m[1])+'</td></tr>').join('')+'</table></td>'
+    +'</tr></table><p class="pd-printed">'+esc(printed)+'</p>';
+
+  const dims=tableRows('dims-tbody').filter(r=>r[0]||r[1]);
+  const rm=tableRows('rm-tbody').filter(r=>r[0]||r[1]);
+  const colors=tableRows('color-tbody').filter(r=>r[0]||r[2]);
+  const pack=tableRows('pack-tbody').filter(r=>r[0]||r[1]);
+
+  let drawingHtml='<div class="pd-drawing"><span class="pd-blank">No drawing attached</span></div>';
+  if(drawing){
+    const src=isImage(drawing.type)?(previews[drawing.id]||$('dz-img').getAttribute('src')):null;
+    drawingHtml='<div class="pd-drawing">'+(src?'<img src="'+esc(src)+'" alt="Technical drawing">':'')
+      +'<div class="cap">'+esc(drawing.name)+' · '+esc(fmtSize(drawing.size))+(src?'':' — attached file, kept in Drive')+'</div></div>';
+  }
+  const storage=[...document.querySelectorAll('#sec-storage .two-col .field-group')].map(g=>{
+    const [en,ar]=splitLabel(g.querySelector('.field-label').textContent);return [en,ar,val(g.querySelector('input,select,textarea'))];
+  });
+  const storageNotes=$('sec-storage').querySelector(':scope .section-body > .field-group textarea');
+  const designNotes=$('sec-design').querySelector('textarea');
+  const signers=[...document.querySelectorAll('.sig-name-line')].map(val);
+  const sign=(en,ar,name)=>'<td><div class="role">'+esc(en)+'<span class="ar" dir="rtl">'+esc(ar)+'</span></div>'
+    +'<div class="line"><span>Name</span><span dir="auto">'+esc(name)+'</span></div>'
+    +'<div class="line"><span>Signature</span><span></span></div><div class="line"><span>Date</span><span></span></div></td>';
+
+  $('print-doc').innerHTML=header
+    +pdSection(1,'Product Specifications — Dimensions','المواصفة القياسية للمنتج',pdTable([
+      {en:'Characteristic',ar:'البيان',i:0,fmt:biInline},
+      {en:'Specification',ar:'المواصفة',i:1,cls:'c-num',w:'25mm'},
+      {en:'Tolerance',ar:'التفاوت',i:2,cls:'c-num',w:'22mm',fmt:v=>v?'± '+esc(v):''},
+      {en:'Unit',ar:'الوحدة',i:3,cls:'c-center',w:'16mm'},
+      {en:'Method',ar:'طريقة القياس',i:4,w:'32mm'}],dims))
+    +pdSection(2,'Product Design','المواصفة الهندسية',
+      pdKV([['Drawing number','رقم الرسمة',val($('drw-no'))],['Drawing revision','إصدار الرسمة',val($('drw-rev'))]],
+        ['Design notes','ملاحظات التصميم',val(designNotes)])+drawingHtml)
+    +pdSection(3,'Raw Material Specification','مواصفة خامات العبوة',pdTable([
+      {en:'Raw material',ar:'الخامة',i:0},
+      {en:'Supplier',ar:'المورد',i:1},
+      {en:'Grade / Type',ar:'',i:2,cls:'c-center',w:'20mm'},
+      {en:'Density (g/cm³)',ar:'الكثافة',i:3,cls:'c-num',w:'22mm'},
+      {en:'MFI (g/10 min)',ar:'معامل الانسيابية',i:4,w:'30mm'},
+      {en:'Remarks',ar:'ملاحظات',i:5}],rm))
+    +pdSection(4,'Masterbatch & Color Specification','مواصفات الألوان والنسب المستخدمة',pdTable([
+      {en:'Color',ar:'اللون',i:0,fmt:(v,r)=>(r[1]&&!/^var\(/.test(r[1])?'<span class="pd-swatch" style="background:'+esc(r[1])+'"></span>':'')+esc(v)},
+      {en:'Masterbatch',ar:'الصبغة',i:2},
+      {en:'Supplier',ar:'المورد',i:3},
+      {en:'Pantone No.',ar:'رقم البانتون',i:4,w:'26mm'},
+      {en:'Ratio',ar:'النسبة',i:5,cls:'c-num',w:'16mm'}],colors))
+    +pdSection(5,'Packing Specification','مواصفات التعبئة',pdTable([
+      {en:'Brand name',ar:'اسم المنتج',i:0},
+      {en:'Pcs / bag',ar:'عبوات بالكيس',i:1,cls:'c-num',w:'18mm'},
+      {en:'No. bags',ar:'عدد الأكياس',i:2,cls:'c-num',w:'16mm'},
+      {en:'Bag size (cm)',ar:'مقاس الكيس',i:3,cls:'c-center',w:'20mm'},
+      {en:'Bag color',ar:'لون الكيس',i:4,fmt:biInline,w:'24mm'},
+      {en:'Pcs / pallet',ar:'عدد بالبالتة',i:5,cls:'c-num',w:'18mm'},
+      {en:'Pallet size',ar:'مقاس الترية',i:6,cls:'c-center',w:'26mm'}],pack))
+    +pdSection(6,'Pallet & Storage Specification','طريقة التغليف والتخزين',pdKV(storage,['Additional notes','ملاحظات إضافية',val(storageNotes)]))
+    +pdSection(7,'Approvals','إعداد واعتماد','<table class="pd-sign"><tr>'+sign('Prepared by','أعدّه',signers[0])+sign('Approved by','اعتمده',signers[1])+'</tr></table>');
+}
+window.addEventListener('beforeprint',buildPrintDoc); // also covers Ctrl+P / the browser's own Print
+
 function exportPdf(){
   document.title=[$('prod-code').value,$('doc-code').value,$('prod-name').value].map(s=>s.trim()).filter(Boolean).join(' - ')||'Product spec';
-  document.querySelectorAll('.form-wrap textarea').forEach(t=>{t.style.height='auto';t.style.height=t.scrollHeight+'px';});
+  buildPrintDoc();
   window.print();
 }
 
